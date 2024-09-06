@@ -1,7 +1,7 @@
 VineHandToolStateEvent = {}
 local VineHandToolStateEvent_mt = Class(VineHandToolStateEvent, Event)
 
-EventIds.assignEventObjectId(VineHandToolStateEvent, "VineHandToolStateEvent", 475)
+InitEventClass(VineHandToolStateEvent, "VineHandToolStateEvent")
 
 function VineHandToolStateEvent.emptyNew()
 	local self = Event.new(VineHandToolStateEvent_mt)

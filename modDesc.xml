@@ -17,33 +17,34 @@
 	<multiplayer supported="true"/>
 
 	<extraSourceFiles>
-		<sourceFile filename="scripts/VineHandToolActivateEvent.lua" />
+		<sourceFile filename="scripts/VineHandToolHarvestEvent.lua" />
+		<sourceFile filename="scripts/VineHandToolPruneEvent.lua" />
 		<sourceFile filename="scripts/VineHandToolStateEvent.lua" />
 		<sourceFile filename="scripts/VineHandTool.lua" />
 	</extraSourceFiles>
 
 	<l10n>
-		<text name="shopItem_vineHandTool"> 
+		<text name="shopItem_vineHandTool">
 			<de>Weingartenschere</de>
 			<en>Vineyard shear</en>
 			<fr>Sécateur</fr>
 		</text>
-		<text name="function_vineHandTool"> 
+		<text name="function_vineHandTool">
 			<de>Mit einer Weingartenschere lassen sich Trauben ernten.</de>
 			<en>With a vineyard shear you can harvest grapes.</en>
 			<fr>Couper les grappes de raisin avec le sécateur.</fr>
 		</text>
-		<text name="function_vineOliveTransporter"> 
+		<text name="function_vineOliveTransporter">
 			<de>Dieses Gerät eignet sich perfekt für den Traubentransport mit Traubenpaletten.</de>
 			<en>This tool suits perfectly for grape transport via grape pallets.</en>
 			<fr>Cette palette-cuve est parfaite pour le transport des grappes (raisins/olives).</fr>		
 		</text>
-		<text name="action_setContainer"> 
+		<text name="action_setContainer">
 			<de>"%s" als Zielbehälter auswählen</de>
 			<en>Set "%s" as target container</en>
 			<fr>Définir "%s" comme récipient cible</fr>
 		</text>
-		<text name="warning_tooFarAway"> 
+		<text name="warning_tooFarAway">
 			<de>Zielbehälter ist zu weit entfernt. Bitte näher holen und neu auswählen!</de>
 			<en>Target container is too far away. Please bring it closer and reselect!</en>
 			<fr>Le récipient est trop éloigné. Rapprochez et sélectionnez le à nouveau !</fr>
