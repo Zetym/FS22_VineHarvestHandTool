@@ -46,30 +46,23 @@ function VineHandToolHarvestEvent:run(connection)
         return
 	end
     local tool = self.player.baseInformation.currentHandtool
-    -- TODO node isn't the same between clients
-    print("Run vine harvest", tostring(self.player), tostring(tool), tostring(self.placeable), self.poleIndex, tool.yieldContainer.isSet, self.x, self.y, self.z)
+--     print("Run vine harvest")
     if tool ~= nil and tool.yieldContainer.isSet then
         local node = VineHandTool.getNodeFromPoleIndex(self.placeable, self.poleIndex)
-        printf("harvestVine %s", tostring(node))
+--         printf("harvestVine %s", tostring(node))
         if node ~= nil then
             local x, y, z = self.x, self.y, self.z
-            local result = self.placeable:harvestVine(node, x-0.3, y-0.2, z-0.3, x+0.3, y+0.2, z+0.3, tool.harvestCallback, tool)
-            printf("HarvestResult: %s", tostring(result))
+            self.placeable:harvestVine(node, x-0.3, y-0.2, z-0.3, x+0.3, y+0.2, z+0.3, tool.harvestCallback, tool)
         end
     end
 end
 
 function VineHandToolHarvestEvent.sendEvent(player, placeable, poleIndex, x, y, z, noEventSend)
 	local currentTool = player.baseInformation.currentHandtool
-	print("sendHarvestEvent 1")
+-- 	print("sendHarvestEvent 1")
 	if currentTool ~= nil and (noEventSend == nil or noEventSend == false) then
-		print("sendHarvestEvent 2")
--- 		if g_server ~= nil then
--- 			VineHandToolHarvestEvent.new(player, isActive).run(nil)
--- 			print("broadcastHarvestEvent")
--- 		else
-			g_client:getServerConnection():sendEvent(VineHandToolHarvestEvent.new(player, placeable, poleIndex, x, y, z))
-			print("g_client:sendHarvestEvent")
--- 		end
+--         print("sendHarvestEvent 2")
+        g_client:getServerConnection():sendEvent(VineHandToolHarvestEvent.new(player, placeable, poleIndex, x, y, z))
+--         print("g_client:sendHarvestEvent")
 	end
 end

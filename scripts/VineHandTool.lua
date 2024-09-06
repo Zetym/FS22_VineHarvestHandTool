@@ -83,25 +83,10 @@ end
 
 function VineHandTool:registerActionEvents()
 	g_inputBinding:beginActionEventsModification(Player.INPUT_CONTEXT_NAME)
-	print("register action")
+-- 	print("register action")
 
 	local _, eventId = g_inputBinding:registerActionEvent(InputAction.IMPLEMENT_EXTRA, self, self.onInputActivateUnload, false, true, false, false)
 	self.eventIdActivateUnload = eventId
-	--local _, eventActivateId, collidingAction = g_inputBinding:registerActionEvent(InputAction.ACTIVATE_HANDTOOL, self, self.onInputActivateTool, true, true, false, true, nil, true)
-	--actionName, targetObject, eventCallback, triggerUp, triggerDown, triggerAlways, startActive, callbackState, disableConflictingBindings
--- 	print_r(g_inputBinding:getEventsForActionName(InputAction.ACTIVATE_HANDTOOL))
-	local activateAction = g_inputBinding:getEventsForActionName(InputAction.ACTIVATE_HANDTOOL)[1]
-	if activateAction ~= nil then
-		--print("changing original action event")
-		--activateAction.targetObject = self
--- 		activateAction.triggerAlways = false
--- 		activateAction.triggerUp = true
-		--activateAction.triggerDown = true
-		--activateAction.callback = self.onInputActivateTool
-	--else
-		--print("adding own action event")
-	--	local _, eventActivateId = g_inputBinding:registerActionEvent(InputAction.ACTIVATE_HANDTOOL, self, self.onInputActivateTool, true, true, false, true, nil, true)
-	end
 
 	g_inputBinding:endActionEventsModification()
 end
@@ -109,27 +94,9 @@ end
 function VineHandTool:removeActionEvents()
 	g_inputBinding:beginActionEventsModification(Player.INPUT_CONTEXT_NAME)
 	g_inputBinding:removeActionEventsByTarget(self)
-	print("remove Actions")
---     print_r(self)
--- 	local activateAction = g_inputBinding:getEventsForActionName(InputAction.ACTIVATE_HANDTOOL)[1]
-	if activateAction ~= nil then -- restore original setup
--- 		activateAction.triggerAlways = true
--- 		activateAction.triggerUp = false
-	end
+-- 	print("remove Actions")
 	g_inputBinding:endActionEventsModification()
 end
-
-function VineHandTool:onInputActivateHandtool(_, inputValue)
-	--print_r(self.baseInformation.currentHandtool)
-	if self.baseInformation.currentHandtool.isVineDetectionActive ~= nil then
-		printf("input: %d", inputValue)
-		if g_client ~= nil then
-			g_client:getServerConnection():sendEvent(VineHandToolActivateEvent.new(self, self.baseInformation.currentHandtool.activatePressed))
-		end
-	end
-end
-
--- Player.onInputActivateHandtool = Utils.appendedFunction(Player.onInputActivateHandtool, VineHandTool.onInputActivateHandtool)
 
 function VineHandTool:onInputActivateUnload(_, inputValue)
 	if inputValue == 1 and self.unloadRaycast.found then
@@ -137,27 +104,6 @@ function VineHandTool:onInputActivateUnload(_, inputValue)
 		--printf("Object type: %s ---- fillUnitIndex type: %s", type(self.yieldContainer.object), type(self.yieldContainer.fillUnitIndex))
 	end
 end
-
---[[function VineHandTool:onInputActivateTool(_, inputValue)
-	--printf("input %.1f", inputValue)
-	if self.yieldContainer.isSet then
-		if inputValue == 1 then
-			self.activatedPressed = true
-			if g_client ~= nil then
-				g_client:getServerConnection():sendEvent(VineHandToolActivateEvent.new(self.player, self.activatedPressed))
-			end
-			--self:setYieldContainer(self.unloadRaycast.object, self.unloadRaycast.fillUnitIndex, self.unloadRaycast.distance)
-			--printf("Object type: %s ---- fillUnitIndex type: %s", type(self.yieldContainer.object), type(self.yieldContainer.fillUnitIndex))
-		elseif inputValue == 0 then
-			self.activatedPressed = false
-			if g_client ~= nil then
-				g_client:getServerConnection():sendEvent(VineHandToolActivateEvent.new(self.player, self.activatedPressed))
-			end
-			--self:setYieldContainer(self.unloadRaycast.object, self.unloadRaycast.fillUnitIndex, self.unloadRaycast.distance)
-			--printf("Object type: %s ---- fillUnitIndex type: %s", type(self.yieldContainer.object), type(self.yieldContainer.fillUnitIndex))
-		end
-	end
-end]]
 
 function VineHandTool:delete()
 	VineHandTool:superClass().delete(self)
@@ -186,26 +132,20 @@ function VineHandTool:update(dt, allowInput)
             if self.activatePressed then
                 self.cutTimer = math.min(self.cutTimer + dtInSec, self.cutDuration)
 
-                printf("isCutting: %f", self.cutTimer)
+--                 printf("isCutting: %f", self.cutTimer)
                 if self.cutTimer == self.cutDuration then
---                 harvest/prune event
                     local cutting = self.currentCutting
                     local x,y,z = unpack(cutting.pos)
-                    printf("cut: %f %f %f", x,y,z)
---                     cutting.placeable:harvestVine(cutting.node, x-0.3, y-0.1, z-0.3, x+0.3, y+0.1, z+0.3, self.harvestCallback, self)
+--                     printf("cut: %f %f %f", x,y,z)
 
                     if self.yieldContainer.isSet then -- check if yield container is set
-                        --local startX, startZ, widthX, widthZ, heightX, heightZ = placeable:getVineAreaByNode(node)
-                        --placeable:harvestVine(node, widthX, y, widthZ, heightX, y, heightZ, self.harvestCallback, self)
                         VineHandToolHarvestEvent.sendEvent(self.player, cutting.placeable, cutting.poleIndex, x, y, z)
---                         cutting.placeable:harvestVine(cutting.node, x-0.3, y-0.1, z-0.3, x+0.3, y+0.1, z+0.3, self.harvestCallback, self)
                     else -- if not, try to prepare vine
                         VineHandToolPruneEvent.sendEvent(self.player, cutting.placeable, cutting.poleIndex, x, y, z)
---                         local area = cutting.placeable:prepareVine(cutting.node, x-0.4, y-0.1, z-0.4, x+0.4, y+0.1, z+0.4)
                     end
 
                     self.isCutting = false
-                    print("Done cutting")
+--                     print("Done cutting")
                 else
                     rotateAboutLocalAxis(self.graphicsNode, dt*0.2, 0, 1, 0)
                 end
@@ -239,25 +179,17 @@ function VineHandTool:update(dt, allowInput)
         if not self.isCutting then
             setRotation(self.graphicsNode, unpack(self.originRotation))
         end
-		--if self.activatePressed then
-			--VineHandToolActivateEvent.sendEvent(self.player, true, self.isServer)
-			--self.activatePressed = false
-		--end
 	end
 
     self.activatePressed = false
 end
 
 function VineHandTool:updateTick(dt)
---     print("tick")
 	if self.raycast.node ~= nil and self.isClient then
 		if self.yieldContainer.isSet then
 			self.yieldContainer.distance = calcDistanceFrom(self.raycast.node, self.yieldContainer.object.rootNode)
 			if self.yieldContainer.distance > self.containerMaxDistance then
 				self:setYieldContainer(nil, nil, 0)
-				--self.yieldContainer.isSet = false
-				--self.yieldContainer.object = nil
-				--self.yieldContainer.fillUnitIndex = nil
 				g_currentMission:showBlinkingWarning(g_i18n:getText("warning_tooFarAway"), 4000)
 			end
 		end
@@ -297,7 +229,7 @@ function VineHandTool:rayCastCallbackTrailerDetection(hitActorId, x, y, z, dista
 		local object = g_currentMission:getNodeObject(hitActorId)
 
 		if VehicleDebug.state == VehicleDebug.DEBUG then
--- 			DebugUtil.drawDebugGizmoAtWorldPos(x, y, z, 0, 0, 1, 0, 1, 0, string.format("hitActorId %s (%s); hitShape %s (%s); object %s", getName(hitActorId), hitActorId, getName(hitShapeId), hitShapeId, tostring(object)))
+			DebugUtil.drawDebugGizmoAtWorldPos(x, y, z, 0, 0, 1, 0, 1, 0, string.format("hitActorId %s (%s); hitShape %s (%s); object %s", getName(hitActorId), hitActorId, getName(hitShapeId), hitShapeId, tostring(object)))
 		end
 
 		local validObject = object ~= nil and object ~= self
@@ -389,27 +321,14 @@ function VineHandTool:handleVinePlaceable(node, placeable, x, y, z)
         self.currentCutting.placeable = placeable
         self.currentCutting.poleIndex = data.poleIndex
         self.currentCutting.pos = {x, y, z}
-
-
     end
-
---[[
-	if placeable ~= nil and self.yieldContainer.isSet then -- check if yield container is set
-		--local startX, startZ, widthX, widthZ, heightX, heightZ = placeable:getVineAreaByNode(node)
-		--placeable:harvestVine(node, widthX, y, widthZ, heightX, y, heightZ, self.harvestCallback, self)
-
-		placeable:harvestVine(node, x-0.3, y-0.1, z-0.3, x+0.3, y+0.1, z+0.3, self.harvestCallback, self)
-	elseif placeable ~= nil and not self.yieldContainer.isSet then -- if not, try to prepare vine
-		local area = placeable:prepareVine(node, x-0.4, y-0.1, z-0.4, x+0.4, y+0.1, z+0.4)
-	end
-]]
 
 	return true
 end
 
 
 function VineHandTool:harvestCallback(placeable, area, totalArea, weedFactor, sprayFactor, plowFactor, sectionLength)
-	print("harvestCallback")
+-- 	print("harvestCallback")
 	--local spec = self.spec_vineCutter
 	local limeFactor = 1
 	local stubbleTillageFactor = 1
@@ -462,10 +381,9 @@ end
 
 --------
 function VineHandTool.getNodeFromPoleIndex(placeable, poleIndex)
-    printf("Find index %d in placeable %s", poleIndex, tostring(placeable))
+--     printf("Find index %d in placeable %s", poleIndex, tostring(placeable))
     local vine = placeable.spec_vine
     for node,data in pairs(vine.nodes) do
-        printf("Node %d has index %d", node, data.poleIndex)
         if data.poleIndex == poleIndex then
             return node
         end

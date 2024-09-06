@@ -45,7 +45,7 @@ function VineHandToolPruneEvent:run(connection)
         printError("VineHandToolPruneEvent sent to non-server. This is not intended")
         return
 	end
-    print("Run vine prune")
+--     print("Run vine prune")
     local tool = self.player.baseInformation.currentHandtool
     if tool ~= nil then
         local node = VineHandTool.getNodeFromPoleIndex(self.placeable, self.poleIndex)
@@ -58,15 +58,10 @@ end
 
 function VineHandToolPruneEvent.sendEvent(player, placeable, poleIndex, x, y, z, noEventSend)
 	local currentTool = player.baseInformation.currentHandtool
-	print("sendPruneEvent 1")
+-- 	print("sendPruneEvent 1")
 	if currentTool ~= nil and (noEventSend == nil or noEventSend == false) then
-		print("sendPruneEvent 2")
--- 		if g_server ~= nil then
--- 			VineHandToolPruneEvent.new(player, isActive).run(nil)
--- 			print("broadcastPruneEvent")
--- 		else
-			g_client:getServerConnection():sendEvent(VineHandToolPruneEvent.new(player, placeable, poleIndex, x, y, z))
-			print("g_client:sendPruneEvent")
--- 		end
+--         print("sendPruneEvent 2")
+        g_client:getServerConnection():sendEvent(VineHandToolPruneEvent.new(player, placeable, poleIndex, x, y, z))
+--         print("g_client:sendPruneEvent")
 	end
 end
