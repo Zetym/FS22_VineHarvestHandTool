@@ -55,10 +55,19 @@ function VineHandTool:postLoad(xmlFile)
 	self.fillType = FillType.GRAPE
     self.fruitType = FruitType.GRAPE
 
-    self.isRotating = false
-    self.rotateSpeed = math.pi*2
-    self.graphicsNode = getChildAt(getChildAt(getChildAt(self.rootNode, 0), 0), 0)
-    self.originRotation = {getRotation(self.graphicsNode)}
+    local graphicsNode = getChildAt(getChildAt(getChildAt(self.rootNode, 0), 0), 0)
+    self.graphicsShear = getChildAt(graphicsNode, 1)
+    self.graphicsSpring = getChildAt(self.graphicsShear, 0)
+    self.animationTimer = 0
+    self.animationSpeed = 6
+    self.animation = {
+        shearRotationStart = {0, 0, 0},
+        shearRotationTarget = {0, 0.8, 0},
+        springRotationStart = {0, 0, 0},
+        springRotationTarget = {0, -0.45, 0},
+        springScaleStart = {1, 1, 1},
+        springScaleTarget = {1, 1, 0.5}
+    }
 	
 	self.unloadRaycast = {
 		found = false,
@@ -147,8 +156,6 @@ function VineHandTool:update(dt, allowInput)
 
                     self.isCutting = false
 --                     print("Done cutting")
-                else
-                    rotateAboutLocalAxis(self.graphicsNode, dtInSec*self.rotateSpeed, 0, 1, 0)
                 end
             else
                 self.isCutting = false
@@ -176,10 +183,32 @@ function VineHandTool:update(dt, allowInput)
 		if not self.activatePressed and self.wasLastActivated then
 			self.wasLastActivated = false
 		end
-        self.player:lockInput(self.isCutting)
-        if not self.isCutting then
-            setRotation(self.graphicsNode, unpack(self.originRotation))
+
+        if self.isCutting or self.animationTimer > 0 then
+            local delta = dtInSec * self.animationSpeed
+            if not self.isCutting then
+                delta = -delta
+                -- don't ping-ping back to start, just do the shortest path
+                if self.animationTimer > 1 then
+                    self.animationTimer = 2 - self.animationTimer
+                end
+            end
+            -- modulus 2 for a DIY ping-pong effect
+            self.animationTimer = math.fmod(math.max(self.animationTimer + delta, 0), 2)
+
+            local t = (self.animationTimer > 1) and (2 - self.animationTimer) or self.animationTimer
+            local anim = self.animation
+            local animate = function(func, node, start, target, t)
+                local x1, y1, z1 = unpack(start)
+                local x2, y2, z2 = unpack(target)
+                func(node, MathUtil.lerp3(x1, y1, z1, x2, y2, z2, t))
+            end
+            animate(setRotation, self.graphicsShear, anim.shearRotationStart, anim.shearRotationTarget, t)
+            animate(setRotation, self.graphicsSpring, anim.springRotationStart, anim.springRotationTarget, t)
+            animate(setScale, self.graphicsSpring, anim.springScaleStart, anim.springScaleTarget, t)
         end
+
+        self.player:lockInput(self.isCutting)
 	end
 
     self.activatePressed = false
@@ -313,8 +342,6 @@ function VineHandTool:handleVinePlaceable(node, placeable, x, y, z)
 
         local spec = placeable.spec_vine
         local data = spec.nodes[node]
-
-        self.isRotating = true
 
         self.isCutting = true
         self.wasLastActivated = true
