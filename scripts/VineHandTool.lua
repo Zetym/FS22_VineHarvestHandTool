@@ -56,6 +56,7 @@ function VineHandTool:postLoad(xmlFile)
     self.fruitType = FruitType.GRAPE
 
     self.isRotating = false
+    self.rotateSpeed = math.pi*2
     self.graphicsNode = getChildAt(getChildAt(getChildAt(self.rootNode, 0), 0), 0)
     self.originRotation = {getRotation(self.graphicsNode)}
 	
@@ -147,7 +148,7 @@ function VineHandTool:update(dt, allowInput)
                     self.isCutting = false
 --                     print("Done cutting")
                 else
-                    rotateAboutLocalAxis(self.graphicsNode, dt*0.2, 0, 1, 0)
+                    rotateAboutLocalAxis(self.graphicsNode, dtInSec*self.rotateSpeed, 0, 1, 0)
                 end
             else
                 self.isCutting = false
